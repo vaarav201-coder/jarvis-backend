@@ -18,7 +18,7 @@ else:
 
 client = genai.Client(api_key=API_KEY)
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.6-flash"
 
 
 # --------------------------------------------------
@@ -39,7 +39,7 @@ def health():
 
 
 # --------------------------------------------------
-# Gemini chat route
+# Gemini chat
 # --------------------------------------------------
 
 @app.route("/chat", methods=["POST"])
@@ -48,87 +48,52 @@ def chat():
     print("CHAT: request received", flush=True)
 
     try:
-        # Read JSON sent by the Android app
         data = request.get_json(silent=True)
 
         print("CHAT: JSON received:", data, flush=True)
 
         if not data:
-            print("CHAT ERROR: no JSON body", flush=True)
-
             return jsonify({
                 "error": "Request body must contain JSON."
             }), 400
 
-        # Get user's message
         user_message = data.get("message")
 
         if not isinstance(user_message, str):
-            print("CHAT ERROR: message is missing or not text", flush=True)
-
             return jsonify({
                 "error": "The 'message' field must be text."
             }), 400
 
         user_message = user_message.strip()
 
-        print(
-            "CHAT: message length:",
-            len(user_message),
-            flush=True
-        )
-
         if not user_message:
-            print("CHAT ERROR: empty message", flush=True)
-
             return jsonify({
                 "error": "Message cannot be empty."
             }), 400
 
-        # Make sure API key exists
         if not API_KEY:
-            print(
-                "GEMINI ERROR: GEMINI_API_KEY is missing",
-                flush=True
-            )
-
             return jsonify({
                 "error": "Gemini API key is not configured."
             }), 500
 
-        # Send request to Gemini
-        print(
-            "CHAT: sending request to Gemini...",
-            flush=True
-        )
+        print("CHAT: sending request to Gemini...", flush=True)
 
-        response = client.models.generate_content(
+        # Current Gemini Interactions API
+        interaction = client.interactions.create(
             model=MODEL,
-            contents=user_message
+            input=user_message
         )
 
-        print(
-            "CHAT: Gemini response received",
-            flush=True
-        )
+        print("CHAT: Gemini response received", flush=True)
 
-        # Extract response text safely
-        reply = response.text
+        reply = interaction.output_text
 
         if not reply:
-            print(
-                "GEMINI ERROR: Gemini returned empty text",
-                flush=True
-            )
-
             return jsonify({
                 "error": "Gemini returned an empty response."
             }), 500
 
-        print(
-            "CHAT: reply generated successfully",
-            flush=True
-        )
+        print("CHAT: reply generated successfully", flush=True)
 
         return jsonify({
             "reply": reply
@@ -136,17 +101,7 @@ def chat():
 
     except Exception as e:
 
-        print(
-            "GEMINI ERROR:",
-            repr(e),
-            flush=True
-        )
-
-        print(
-            "FULL TRACEBACK:",
-            flush=True
-        )
-
+        print("GEMINI ERROR:", repr(e), flush=True)
         traceback.print_exc()
 
         return jsonify({
@@ -160,9 +115,7 @@ def chat():
 
 if __name__ == "__main__":
 
-    port = int(
-        os.environ.get("PORT", 10000)
-    )
+    port = int(os.environ.get("PORT", 10000))
 
     print(
         f"STARTING JARVIS BACKEND ON PORT {port}",
