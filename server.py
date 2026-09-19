@@ -19,6 +19,7 @@ else:
 client = genai.Client(api_key=API_KEY)
 
 MODEL = "gemini-3.6-flash"
+
 last_interaction_id = None
 
 
@@ -47,11 +48,11 @@ def health():
 def chat():
 
     global last_interaction_id
-    
+
     print("CHAT: request received", flush=True)
 
     try:
-        
+
         data = request.get_json(silent=True)
 
         print("CHAT: JSON received:", data, flush=True)
@@ -82,13 +83,16 @@ def chat():
 
         print("CHAT: sending request to Gemini...", flush=True)
 
-                if last_interaction_id:
+        if last_interaction_id:
+
             interaction = client.interactions.create(
                 model=MODEL,
                 previous_interaction_id=last_interaction_id,
                 input=user_message
             )
+
         else:
+
             interaction = client.interactions.create(
                 model=MODEL,
                 system_instruction="""You are J.A.R.V.I.S., a highly capable personal AI assistant.
