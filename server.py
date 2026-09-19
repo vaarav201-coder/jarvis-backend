@@ -45,10 +45,13 @@ def health():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-print("chat: request received", flush=True)
+
+    global last_interaction_id
+    
     print("CHAT: request received", flush=True)
 
     try:
+        
         data = request.get_json(silent=True)
 
         print("CHAT: JSON received:", data, flush=True)
