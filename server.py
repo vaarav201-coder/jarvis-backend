@@ -78,8 +78,7 @@ def chat():
 
         print("CHAT: sending request to Gemini...", flush=True)
 
-        # Current Gemini Interactions API
-               interaction = client.interactions.create(
+        interaction = client.interactions.create(
             model=MODEL,
             system_instruction="""You are J.A.R.V.I.S., a highly capable personal AI assistant.
 
