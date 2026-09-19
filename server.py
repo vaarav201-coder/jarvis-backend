@@ -19,6 +19,7 @@ else:
 client = genai.Client(api_key=API_KEY)
 
 MODEL = "gemini-3.6-flash"
+last_interaction_id = None
 
 
 # --------------------------------------------------
